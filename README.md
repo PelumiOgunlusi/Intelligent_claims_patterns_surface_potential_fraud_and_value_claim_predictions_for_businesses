@@ -1,0 +1,2 @@
+# Intelligent_claims_patterns_surface_potential_fraud_and_value_claim_predictions_for_businesses
+Fully reproducible, end-to-end project with publicly-available data
