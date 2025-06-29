@@ -1,0 +1,43 @@
+---
+author: PELUMI OGUNLUSI
+title: "Intelligent claims patterns, surface potential fraud, and value claim predictions for businesses"
+format: html
+---
+
+# Introduction
+This project looks for the best performaing model from 12 classification models to detect fraud cases in a comprehensive collection of insurance claim records.
+
+# Data Understanding
+Insurance claims fraud is a deceptive act where someone intentionally provides false or misleading information to an insurance company to obtain financial benefits they are not entitled to. This can involve exaggerating claims, staging accidents, or even faking deaths to collect on life insurance policies. It is a serious crime with legal repercussions, and it ultimately increases the cost of insurance for everyone.
+
+# About this dataset
+The dataset, named `insurance_claims.csv`, is a comprehensive collection of insurance claim records. Each row represents an individual claim, and the columns represent various features associated with that claim. 
+
+The dataset is, highlighting features like `months_as_customer`, `age`, `policy_number`, ...etc. The main focus is the `fraud_reported` variable, which indicates claim legitimacy.
+
+Claims data were sourced from various insurance providers, encompassing a diverse array of insurance types including vehicular, property, and personal injury. Each claim's record provides an in-depth look into the individual's background, claim specifics, associated documentation, and feedback from insurance professionals.
+
+The dataset further includes specific indicators and parameters that were considered during the claim's assessment, offering a granular look into the complexities of each claim.
+
+For privacy reasons, and in agreement with the participating insurance providers, certain personal details and specific identifiers have been anonymized. Instead of names or direct identifiers, each entry is associated with a unique ID, ensuring data privacy while retaining data integrity.
+
+The insurance claims were subjected to rigorous examination, encompassing both manual assessments and automated checks. The end result of this examination, specifically whether a claim was deemed fraudulent or not, is clearly indicated for each record.
+
+# Source
+[link](https://data.mendeley.com/datasets/992mh7dk9y/2)
+
+# Data Preparation
+
+```{python}
+# install and import required libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import plotly.express as px
+```
+
+```{python}
+# Loading the dataset
+insurance = pd.read_csv("data/insurance_claims.csv")
+```
