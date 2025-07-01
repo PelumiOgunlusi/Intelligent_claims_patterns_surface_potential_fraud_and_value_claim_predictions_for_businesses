@@ -35,9 +35,80 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
+import itables
 ```
-
+## Reading the dataset
 ```{python}
 # Loading the dataset
 insurance = pd.read_csv("data/insurance_claims.csv")
+```
+## Dataset Information
+- Inspecting the initial rows, columns, data types, null values, duplicated status, and summary statistics to get an understanding of the dataset's structure.
+
+```{python}
+insurance.head()
+```
+
+```{python}
+insurance.shape
+```
+- The dataset consists of 1000 rows and 40 columns 
+
+```{python}
+insurance.info()
+```
+- The column titled `_c39` contains no value, hence it'll be dropped
+
+```{python}
+insurance.isnull().sum()
+```
+- The column `authorities_contacted` contains 91 missing values
+
+```{python}
+insurance[insurance.duplicated()]
+```
+- No duplicated data within the dataset 
+
+## Checking Label Proportion
+```{python}
+insurance['fraud_reported'].value_counts(normalize=True)*100
+```
+
+```{python}
+# Bar graph of fraud reported cases proportion
+fig_bar = px.bar(
+    insurance['fraud_reported'].value_counts().reset_index(),
+    x='fraud_reported',
+    y='count',
+    labels={'fraud_reported': 'Fraud Reported', 'count': 'Count'},
+    title='Bar Chart of Fraud Reported Cases'
+)
+fig_bar.show()
+```
+
+```{python}
+# Pie chart of fraud reported cases proportion
+fig_pie = px.pie(
+    insurance,
+    names='fraud_reported',
+    title='Pie Chart of Fraud Reported Cases',
+    hole=0.3
+)
+fig_pie.show()
+```
+- Significant differences in the proportion of labels in the classification case can cause computers/machines to not learn well so that the model formed can only recognize dominant labels. There is a significant difference in the proportion of labels in this dataset so later we'll have to balance the dataset as we proceed.
+
+# Data cleaning and Preprocessing
+```{python}
+itables.show(insurance)
+```
+## Handling Missing Data
+
+```{python}
+# dropping the entire column as it contains no values
+insurance.drop(columns=['_c39'], inplace=True)
+```
+```{python}
+# dropping only the rows with null values in this column
+insurance.dropna(subset=['authorities_contacted'], inplace=True)
 ```
