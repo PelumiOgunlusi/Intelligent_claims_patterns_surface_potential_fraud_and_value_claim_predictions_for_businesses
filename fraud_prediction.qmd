@@ -36,6 +36,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
 import itables
+import sklearn
 ```
 ## Reading the dataset
 ```{python}
@@ -46,7 +47,7 @@ insurance = pd.read_csv("data/insurance_claims.csv")
 - Inspecting the initial rows, columns, data types, null values, duplicated status, and summary statistics to get an understanding of the dataset's structure.
 
 ```{python}
-insurance.head()
+itables.show(insurance)
 ```
 
 ```{python}
@@ -96,12 +97,9 @@ fig_pie = px.pie(
 )
 fig_pie.show()
 ```
-- Significant differences in the proportion of labels in the classification case can cause computers/machines to not learn well so that the model formed can only recognize dominant labels. There is a significant difference in the proportion of labels in this dataset so later we'll have to balance the dataset as we proceed.
+- Significant difference is seen in the proportion of labels in this project case, we'll have to balance the dataset as we proceed.
 
 # Data cleaning and Preprocessing
-```{python}
-itables.show(insurance)
-```
 ## Handling Missing Data
 
 ```{python}
@@ -118,7 +116,7 @@ insurance.dropna(subset=['authorities_contacted'], inplace=True)
 columns_with_question_mark = [col for col in insurance.columns if insurance[col].astype(str).str.contains('\?').any()]
 print("Columns containing '?':", columns_with_question_mark)
 ```
-- From just maually viewing the dataset, we noticed some cloumns contain an unknown value '?'. So, as not to further reduce the number of rows in the dataset, we'll be replacing the values in these columns with relevant information that pertians to each column
+- From just maually viewing the dataset, it was noticed that some columns contain an unknown value '?'. To prevent further reduction of the number of rows in the dataset, I'll be replacing the values in these columns with relevant information that pertains to each column
 
 ```{python}
 # replacing ? symbol in specific columns with other values
@@ -211,30 +209,133 @@ for col in numerical_cols:
 - EDA doesn't really provide accurate information on patterns between the features and the target column due to the imbalanced nature of the dataset. We will rectify this as we proceed
     
 # Feature Engineering
-## Removing unnecessary columns
-to_drop = ['policy_number', 'policy_bind_date', 'policy_annual_premium', 'insured_zip', '']
-
-
-# Encoding Categorical Columns
-```{python}
-# Extracting categorical columns
-cat_e = insurance.select_dtypes(include='object')
-cat_e
-```
-
-# Encoding all categorical variables using one-hot encoding
-cat_insurance_encoded = pd.get_dummies(cat_insurance, drop_first=True)
-cat_insurance_encoded.head()
-
-```{python}
-# Get dummies for categorical columns
-cat_insurance = pd.get_dummies(cat_insurance, drop_first=True)
-cat_insurance
-```
-- This is done so that we can pass the variables into the ML models.
-
 ## Separating the feature and target column
 ```{python}
 x = insurance.drop('fraud_reported', axis = 1)  
 y = insurance['fraud_reported']  
 ```
+## Converting columns `policy_bind_date` and `incident_date` to date_time datatype and extracting the year columns from both of these  
+
+```{python}
+# Convert 'policy_bind_date' and 'incident_date' to datetime
+x['policy_bind_date'] = pd.to_datetime(x['policy_bind_date'])
+x['incident_date'] = pd.to_datetime(x['incident_date'])
+
+# Extract year from both columns
+x['policy_bind_year'] = x['policy_bind_date'].dt.year
+x['incident_year'] = x['incident_date'].dt.year
+x.drop(columns=['policy_bind_date','incident_date'], inplace=True)
+x
+``` 
+
+## Encoding Categorical Columns
+```{python}
+# Extracting categorical columns
+cat_col = x.select_dtypes(include='object')
+cat_col = cat
+```
+
+```{python}
+# Selecting columns of interest in the categorical columns; only columns with less than 10 unique values will be used for the model 
+to_drop =  ['insured_occupation','insured_hobbies','incident_location','auto_model']
+cat_col.drop(columns=to_drop, inplace=True)
+cat_col
+```
+```{python}
+# Encoding all categorical variables using one-hot encoding
+cat_col_encoded = pd.get_dummies(cat_col, drop_first=True)
+cat_col_encoded
+```
+## Dealing with outliers in numeric dataset
+```{python}
+# Extracting numerical columns
+num_col = x.select_dtypes(include=np.number)
+num_col
+```
+```{python}
+# Normalization of the column with outlier 
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+num_col['umbrella_limit'] = scaler.fit_transform(num_col['umbrella_limit'].values.reshape(-1, 1))
+```
+## Concatenating both numerical and categorical columns to just one dataset
+```{python}
+# Concatenate numerical and encoded categorical columns
+x_processed = pd.concat([num_col, cat_col_encoded], axis=1)
+x_processed
+```
+
+## Encoding the target column
+```{python}
+# Encode target variable: 0 for 'N', 1 for 'Y'
+y = y.map({'N': 0, 'Y': 1})
+y
+```
+
+## Balancing the dataset using oversampling SMOTE
+```{python}
+## imbalance dataset handling and then we can feed our data to the model
+from imblearn.over_sampling import SMOTE
+smote = SMOTE()
+x_sm, y_sm = smote.fit_resample(x_processed,y)
+oversample_plot = y_sm.value_counts().reset_index()
+oversample_plot.columns = ['Labels', 'fraud_reported']
+print (oversample_plot)
+sns.barplot (x='Labels',y='fraud_reported', data=oversample_plot);
+plt.title('status after upsampling');
+```
+
+## Feature selection
+- Here, we use an embedding method to select the most important features in the entire dataset.  Embedded methods are iterative in the sense that takes care of each iteration of the model training process and carefully extract those features which contribute the most to the training for a particular iteration. [for further information](https://www.analyticsvidhya.com/blog/2020/10/feature-selection-techniques-in-machine-learning/#h-embedded-methods) 
+```{python}
+from sklearn.ensemble import ExtraTreesClassifier
+model = ExtraTreesClassifier()
+model.fit(x_sm,y_sm)
+```
+
+```{python}
+# PLot showing the top 18 features that can be used for model training
+plt.figure(figsize=(10,10))
+feat = pd.Series(model.feature_importances_,index= x_sm.columns)
+feat.nlargest(18).plot(kind='bar')
+```
+
+```{python}
+# Selecting only the top 18 columns for modelling
+plot = feat.nlargest(18)
+plot.index
+cols=['incident_severity_Minor Damage', 'incident_severity_Total Loss',
+       'collision_type_Rear Collision', 'property_damage_Unsure',
+       'insured_sex_MALE', 'policy_csl_250/500', 'authorities_contacted_Other',
+       'policy_state_OH', 'incident_state_SC',
+       'incident_type_Single Vehicle Collision', 'insured_zip',
+       'property_damage_YES', 'vehicle_claim', 'policy_state_IN',
+       'policy_number', 'total_claim_amount', 'bodily_injuries',
+       'policy_csl_500/1000']
+x_new = x_sm[cols]
+```
+
+# Modeling:
+```{python}
+# importing required libraries
+from sklearn.model_selection import train_test_split
+```
+
+```{python}
+# Spliting the dataset into training and test sets to ensure the model's generalizability.
+x_train,x_test,y_train,y_test = train_test_split(x_new,y_sm,test_size = 0.2,random_state=4)
+```
+## Models to try
+1. Support Vector Classifier
+2. KNN
+3. Decision Tree Classifier
+4. Random Forest Classifier
+5. Ada Boost Classifier
+6. Gradient Boosting Classifier
+7. Stochastic Gradient Boosting (SGB)
+8. XgBoost
+9. Cat Boost Classifier
+10. Extra Trees Classifier
+11. LGBM Classifier
+12. Voting Classifier
+
