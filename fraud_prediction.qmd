@@ -112,3 +112,129 @@ insurance.drop(columns=['_c39'], inplace=True)
 # dropping only the rows with null values in this column
 insurance.dropna(subset=['authorities_contacted'], inplace=True)
 ```
+
+```{python}
+# Find columns containing the '?' symbol
+columns_with_question_mark = [col for col in insurance.columns if insurance[col].astype(str).str.contains('\?').any()]
+print("Columns containing '?':", columns_with_question_mark)
+```
+- From just maually viewing the dataset, we noticed some cloumns contain an unknown value '?'. So, as not to further reduce the number of rows in the dataset, we'll be replacing the values in these columns with relevant information that pertians to each column
+
+```{python}
+# replacing ? symbol in specific columns with other values
+insurance['collision_type'] = insurance['collision_type'].replace('?', 'No Collision')
+insurance['property_damage'] = insurance['property_damage'].replace('?', 'Unsure')
+insurance['police_report_available'] = insurance['police_report_available'].replace('?', 'In Progress')
+```
+## Checking for outliers
+
+```{python}
+# Plotting the numerical columns in the dataset to check for outliers 
+plt.figure(figsize = (20, 15))  
+plotnumber = 1  
+for col in insurance.columns:  
+    if plotnumber <= 24:  
+        ax = plt.subplot (5, 5, plotnumber)  
+        sns.boxplot (insurance[col])  
+        plt.xlabel(col, fontsize = 15)  
+        plotnumber += 1  
+plt.tight_layout()  
+plt.show()  
+```
+- The only column that contains outliers is the 'umbrella_limit' column which will be adressed later.
+
+# Exploratory Data Analysis
+## Descriptive statistics
+```{python}
+# Summary statistics of all numeric columns in the dataset
+insurance.describe()
+```
+
+```{python}
+# Histogram plot of all numeric columns in the dataset
+insurance.hist(figsize=(20,15), color='skyblue')
+```
+- The highest age is between 30-40 years old. Majority of the customers fall below 250 months as time spent spent so far which the insurance company which is just over 20 years showing majority of these clients are long term customers. There were no significant differences between 'number of witnesses' 
+
+```{python}
+# Displot showing relationship between Age and insurance fraud cases
+sns.displot(data=insurance, x="age", col='fraud_reported', kde=True)
+plt.show()
+```
+- This shows 30-45 years remain consistent among true and false fraud reported cases 
+
+```{python}
+sns.pairplot(data=insurance, hue="fraud_reported",height=3);
+plt.show()
+```
+- This plot helps identify correlations between variables, which is vital in understanding cause-and-effect relationships in data and detect patterns or clusters of data points, aiding in segmentation or classification tasks
+
+```{python}
+# Correlation plot of numerical columns in the dataset
+plt.figure(figsize = (10,6))  
+numeric_df = insurance.select_dtypes(include=np.number)
+corr = numeric_df.corr()  
+sns.heatmap(data = corr, annot = True, fmt = '.2g', linewidth = 1)  
+plt.show()  
+```
+```{python}
+# Checking for multicollinearity between features
+plt.figure(figsize = (30, 25))    
+corr = numeric_df.corr()  
+mask = np.triu(np.ones_like(corr, dtype = bool))    
+sns.heatmap(data = corr, mask = mask, annot = True, fmt = '.2g', linewidth = 1)  
+plt.show()  
+```
+
+```{python}
+# Visualizing feature distributions for fraudulent vs non-fraudulent claims
+categorical_cols = insurance.select_dtypes(include='object').columns.drop('fraud_reported')
+for col in categorical_cols:
+    plt.figure(figsize=(8,4))
+    sns.countplot(data=insurance, x=col, hue='fraud_reported')
+    plt.title(f'Distribution of {col} by Fraud Reported')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+```
+
+```{python}
+# Visualizing numerical features
+numerical_cols = insurance.select_dtypes(include=np.number).columns
+for col in numerical_cols:
+    plt.figure(figsize=(8,4))
+    sns.kdeplot(data=insurance, x=col, hue='fraud_reported', fill=True)
+    plt.title(f'Distribution of {col} by Fraud Reported')
+    plt.tight_layout()
+    plt.show()
+```
+- EDA doesn't really provide accurate information on patterns between the features and the target column due to the imbalanced nature of the dataset. We will rectify this as we proceed
+    
+# Feature Engineering
+## Removing unnecessary columns
+to_drop = ['policy_number', 'policy_bind_date', 'policy_annual_premium', 'insured_zip', '']
+
+
+# Encoding Categorical Columns
+```{python}
+# Extracting categorical columns
+cat_e = insurance.select_dtypes(include='object')
+cat_e
+```
+
+# Encoding all categorical variables using one-hot encoding
+cat_insurance_encoded = pd.get_dummies(cat_insurance, drop_first=True)
+cat_insurance_encoded.head()
+
+```{python}
+# Get dummies for categorical columns
+cat_insurance = pd.get_dummies(cat_insurance, drop_first=True)
+cat_insurance
+```
+- This is done so that we can pass the variables into the ML models.
+
+## Separating the feature and target column
+```{python}
+x = insurance.drop('fraud_reported', axis = 1)  
+y = insurance['fraud_reported']  
+```
