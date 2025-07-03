@@ -152,7 +152,7 @@ insurance.describe()
 # Histogram plot of all numeric columns in the dataset
 insurance.hist(figsize=(20,15), color='skyblue')
 ```
-- The highest age is between 30-40 years old. Majority of the customers fall below 250 months as time spent spent so far which the insurance company which is just over 20 years showing majority of these clients are long term customers. There were no significant differences between 'number of witnesses' 
+- Majority of individuals in this dataset fall between the ages of 30-40 years old. Majority of the customers fall below 250 months as time spent spent so far which the insurance company which is just over 20 years showing majority of these clients are long term customers. There were no significant differences between 'number of witnesses' 
 
 ```{python}
 # Displot showing relationship between Age and insurance fraud cases
@@ -232,7 +232,7 @@ x
 ```{python}
 # Extracting categorical columns
 cat_col = x.select_dtypes(include='object')
-cat_col = cat
+cat_col
 ```
 
 ```{python}
@@ -315,7 +315,7 @@ cols=['incident_severity_Minor Damage', 'incident_severity_Total Loss',
 x_new = x_sm[cols]
 ```
 
-# Modeling:
+# Modeling, Model Evaluation and Hyperparameter tuning:
 ```{python}
 # importing required libraries
 from sklearn.model_selection import train_test_split
@@ -332,10 +332,268 @@ x_train,x_test,y_train,y_test = train_test_split(x_new,y_sm,test_size = 0.2,rand
 4. Random Forest Classifier
 5. Ada Boost Classifier
 6. Gradient Boosting Classifier
-7. Stochastic Gradient Boosting (SGB)
-8. XgBoost
-9. Cat Boost Classifier
-10. Extra Trees Classifier
-11. LGBM Classifier
-12. Voting Classifier
+7. Extra Trees Classifier
+8. Voting Classifier
+
+## Support Vector Classifier
+```{python}
+# fitting the model
+from sklearn.svm import SVC  
+svc = SVC()  
+svc.fit(x_train, y_train)  
+y_pred = svc.predict(x_test)  
+```
+
+```{python}
+# Model Evaluation
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report  
+svc_train_acc = accuracy_score(y_train, svc.predict(x_train))  
+svc_test_acc = accuracy_score(y_test, y_pred)  
+print (f"Training accuracy of Support Vector Classifier is: {svc_train_acc}")  
+print (f"Test accuracy of Support Vector Classifier is: {svc_test_acc}")  
+print(confusion_matrix(y_test, y_pred))  
+print(classification_report (y_test, y_pred))  
+```
+
+## KNN
+```{python}
+# fitting the model
+from sklearn.neighbors import KNeighborsClassifier  
+knn = KNeighborsClassifier (n_neighbors = 30)  
+knn.fit(x_train, y_train)  
+y_pred = knn.predict(x_test)  
+```
+
+```{python}
+# Model Evaluation
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+knn_train_acc = accuracy_score(y_train, knn.predict(x_train))
+knn_test_acc = accuracy_score(y_test, y_pred)
+print (f"Training accuracy of KNN is {knn_train_acc}")
+print (f"Test accuracy of KNN is: {knn_test_acc}")
+print(confusion_matrix(y_test, y_pred))
+print (classification_report (y_test, y_pred))
+```
+
+## Decision Tree Classifier
+
+```{python}
+# fitting the model
+from sklearn.tree import DecisionTreeClassifier  
+dtc = DecisionTreeClassifier()  
+dtc.fit(x_train, y_train)  
+y_pred = dtc.predict(x_test)  
+```
+
+```{python}
+# Model Evaluation
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report  
+dtc_train_acc = accuracy_score(y_train, dtc.predict(x_train))  
+dtc_test_acc = accuracy_score(y_test, y_pred)  
+print (f"Training accuracy of Decision Tree is: {dtc_train_acc}")  
+print (f"Test accuracy of Decision Tree is: {dtc_test_acc}")  
+print(confusion_matrix(y_test, y_pred))  
+print(classification_report(y_test, y_pred))  
+```
+
+```{python}
+# Hyperparmeter tuning
+from sklearn.model_selection import GridSearchCV  
+grid_params = {  
+'criterion': ['gini', 'entropy'],  
+'max_depth': [3, 5, 7, 10],  
+'min_samples_split': range(2, 10, 1),  
+'min_samples_leaf': range(2, 10, 1)  
+}  
+grid_search = GridSearchCV(dtc, grid_params, cv = 5, n_jobs = 1, verbose = 1)  
+grid_search.fit(x_train, y_train)  
+```
+
+```{python}
+# Printing the best parameters and the best score
+print(grid_search.best_params_)  
+print(grid_search.best_score_)  
+```
+
+```{python}
+# Fitting the best estimator
+dtc = grid_search.best_estimator_    
+y_pred = dtc.predict(x_test)  
+```
+
+```{python}
+# Model Evaluation
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+dtc_train_acc = accuracy_score(y_train, dtc.predict(x_train))
+dtc_test_acc = accuracy_score(y_test, y_pred)
+print (f"Training accuracy of Decision Tree is: {dtc_train_acc}")
+print (f"Test accuracy of Decision Tree is: {dtc_test_acc}")
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+```
+
+## Random Forest Classifier
+
+```{python}
+# Fitting the model
+from sklearn.ensemble import RandomForestClassifier  
+rand_clf = RandomForestClassifier(criterion= 'entropy',  
+max_depth= 10,  
+max_features= 'sqrt',  
+min_samples_leaf= 1,  
+min_samples_split= 3,  
+n_estimators= 140)  
+rand_clf.fit(x_train, y_train)  
+y_pred = rand_clf.predict(x_test)  
+```
+
+```{python}
+# Model Evaluation
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+rand_clf_train_acc = accuracy_score(y_train, rand_clf.predict(x_train))
+rand_clf_test_acc = accuracy_score(y_test, y_pred)
+print (f"Training accuracy of Random Forest is: {rand_clf_train_acc}")
+print (f"Test accuracy of Random Forest is: {rand_clf_test_acc}")
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+```
+
+## Ada Boost Classifier
+
+```{python}
+# Fitting the model
+from sklearn.ensemble import AdaBoostClassifier  
+ada = AdaBoostClassifier(estimator = dtc)  
+parameters = {  
+    'n_estimators': [50, 70, 90, 120, 180, 200],  
+    'learning_rate': [0.001, 0.01, 0.1, 1, 10],  
+    'algorithm': ['SAMME', 'SAMME.R']  
+}    
+grid_search = GridSearchCV(ada, parameters, n_jobs =-1, cv = 5, verbose = 1)  
+grid_search.fit(x_train, y_train)  
+```
+
+```{python}
+# Printing the best parameters
+print(grid_search.best_params_)
+print(grid_search.best_score_)
+```
+
+```{python}
+# Fitting the best estimator
+ada = grid_search.best_estimator_  
+y_pred = ada.predict(x_test)  
+```
+
+```{python}
+# Model Evaluation
+ada_train_acc = accuracy_score(y_train, ada.predict(x_train))
+ada_test_acc = accuracy_score(y_test, y_pred)
+print (f"Training accuracy of Ada Boost is {ada_train_acc}")
+print (f"Test accuracy of Ada Boost is: {ada_test_acc}")
+print(confusion_matrix(y_test, y_pred))
+print(classification_report (y_test, y_pred))
+```
+## Gradient boosting classifier
+
+```{python}
+# Fitting the model
+from sklearn.ensemble import GradientBoostingClassifier
+gbc = GradientBoostingClassifier()
+gbc.fit(x_train, y_train)
+y_pred = gbc.predict(x_test)
+```
+
+```{python}
+# Model Evaluation
+gbc_train_acc = accuracy_score(y_train, gbc.predict(x_train))
+gbc_test_acc = accuracy_score(y_test, y_pred)
+print(f"Training accuracy of Gradient Boosting is: {gbc_train_acc}")
+print(f"Test accuracy of Gradient Boosting is: {gbc_test_acc}")
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+```
+
+## Extra Trees Classifier
+
+```{python}
+# Fitting the model
+from sklearn.ensemble import ExtraTreesClassifier
+etc = ExtraTreesClassifier()
+etc.fit(x_train, y_train)
+y_pred = etc.predict(x_test)
+```
+
+```{python}
+# Model Evaluation
+etc_train_acc = accuracy_score(y_train, etc.predict(x_train))
+etc_test_acc = accuracy_score(y_test, y_pred)
+print(f"Training accuracy of Extra Trees is: {etc_train_acc}")
+print(f"Test accuracy of Extra Trees is: {etc_test_acc}")
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+```
+
+## Voting Classifier
+
+```{python}
+# Fitting the Voting Classifier
+from sklearn.ensemble import VotingClassifier
+
+# Extract only DecisionTreeClassifier-relevant params
+dtc_params = {k: v for k, v in grid_search.best_params_.items() if k in ['criterion', 'max_depth', 'min_samples_split', 'min_samples_leaf']}
+dtc_voting = DecisionTreeClassifier(**dtc_params)
+
+# Extract AdaBoost params
+ada_params = {k: v for k, v in grid_search.best_params_.items() if k in ['n_estimators', 'learning_rate', 'algorithm']}
+ada_voting = AdaBoostClassifier(estimator=dtc_voting, **ada_params)
+
+voting_clf = VotingClassifier(
+    estimators=[
+        ('svc', SVC(probability=True)),
+        ('knn', KNeighborsClassifier(n_neighbors=30)),
+        ('dtc', dtc_voting),
+        ('rf', RandomForestClassifier(criterion='entropy', max_depth=10, max_features='sqrt', min_samples_leaf=1, min_samples_split=3, n_estimators=140)),
+        ('ada', ada_voting),
+        ('gbc', GradientBoostingClassifier()),
+        ('etc', ExtraTreesClassifier())
+    ],
+    voting='soft'
+)
+voting_clf.fit(x_train, y_train)
+y_pred = voting_clf.predict(x_test)
+```
+
+```{python}
+# Model Evaluation
+voting_train_acc = accuracy_score(y_train, voting_clf.predict(x_train))
+voting_test_acc = accuracy_score(y_test, y_pred)
+print(f"Training accuracy of Voting Classifier is: {voting_train_acc}")
+print(f"Test accuracy of Voting Classifier is: {voting_test_acc}")
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+```
+
+# Model Performance Comparison
+```{python}
+# Creating a dataframe showing the best performing models
+models = pd.DataFrame({
+'Model' : ['SVC','KNN','Decision Tree','Random Forest','Ada Boost','Gradient Boost','Extra Trees',' Voting Classifier'],
+'Score' : [svc_test_acc, knn_test_acc, dtc_test_acc, rand_clf_test_acc, ada_test_acc, gbc_test_acc, etc_test_acc, voting_test_acc]
+})
+models = models.sort_values(by = 'Score', ascending = False)
+models
+```
+
+## Model Performance Comparison Visualization
+```{python}
+# Bar chart showing plot of models based on performance
+px.bar(data_frame=models, x='Score', y='Model', color='Score', template='plotly_dark',
+       title='Models comparison')
+```
+# Model Interpretation:
+## Model Interpretation with SHAP and LIME
+
+### SHAP (SHapley Additive exPlanations)
+SHAP helps explain the output of any machine learning model. Here’s how you can use SHAP with your best model (e.g., voting_clf):
 
