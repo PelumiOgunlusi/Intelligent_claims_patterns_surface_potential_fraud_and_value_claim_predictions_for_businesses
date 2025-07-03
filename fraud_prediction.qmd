@@ -592,8 +592,76 @@ px.bar(data_frame=models, x='Score', y='Model', color='Score', template='plotly_
        title='Models comparison')
 ```
 # Model Interpretation:
-## Model Interpretation with SHAP and LIME
+## Model Interpretation with SHAP and LIME 
 
-### SHAP (SHapley Additive exPlanations)
-SHAP helps explain the output of any machine learning model. Here’s how you can use SHAP with your best model (e.g., voting_clf):
+```{python}
+# SHAP interpretation for Random Forest model
+import shap
+```
 
+```{python}
+# Create an explainer object for the Random Forest model
+explainer = shap.TreeExplainer(rand_clf)
+```
+
+```{python}
+# Calculate SHAP values for the test set
+shap_values = explainer.shap_values(x_test)
+```
+
+```{python}
+# Summary plot for feature importance
+shap.summary_plot(shap_values, x_test, plot_type="bar", show=True)
+```
+
+```{python}
+# Detailed summary plot (beeswarm)
+shap.summary_plot(shap_values, x_test, show=True)
+```
+
+```{python}
+# Example: Force plot for a single prediction (updated for SHAP v0.20+)
+shap.initjs()
+shap.plots.force(explainer.expected_value, shap_values[0], x_test.iloc[0])
+```
+
+# Deployment & Prediction
+
+# 1. Save the trained Random Forest model
+import joblib
+joblib.dump(rand_clf, 'random_forest_model.pkl')
+
+# 2. Example: Load the model and make a prediction
+# (In production, this would be in your API or app code)
+model = joblib.load('random_forest_model.pkl')
+sample = x_test.iloc[[0]]  # Example input
+prediction = model.predict(sample)
+print(f"Predicted fraud status: {prediction[0]}")
+
+# 3. To deploy as an API, install FastAPI and Uvicorn:
+# !pip install fastapi uvicorn joblib pandas
+
+# 4. Example FastAPI app (save as app.py):
+"""
+from fastapi import FastAPI
+import joblib
+import pandas as pd
+
+app = FastAPI()
+model = joblib.load('random_forest_model.pkl')
+
+@app.post("/predict")
+def predict(features: dict):
+    df = pd.DataFrame([features])
+    pred = model.predict(df)
+    return {"fraud_reported": int(pred[0])}
+"""
+
+# 5. Run the API:
+# uvicorn app:app --reload
+
+# Dependencies to install:
+# pip install pandas scikit-learn joblib fastapi uvicorn
+```{python}
+
+```
