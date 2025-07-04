@@ -42,7 +42,7 @@ import sklearn
 ```{python}
 # Loading the dataset
 insurance = pd.read_csv("data/insurance_claims.csv")
-```
+```  
 ## Dataset Information
 - Inspecting the initial rows, columns, data types, null values, duplicated status, and summary statistics to get an understanding of the dataset's structure.
 
@@ -302,19 +302,17 @@ feat.nlargest(18).plot(kind='bar')
 
 ```{python}
 # Selecting only the top 18 columns for modelling
-plot = feat.nlargest(18)
-plot.index
-cols=['incident_severity_Minor Damage', 'incident_severity_Total Loss',
-       'collision_type_Rear Collision', 'property_damage_Unsure',
-       'insured_sex_MALE', 'policy_csl_250/500', 'authorities_contacted_Other',
-       'policy_state_OH', 'incident_state_SC',
-       'incident_type_Single Vehicle Collision', 'insured_zip',
-       'property_damage_YES', 'vehicle_claim', 'policy_state_IN',
-       'policy_number', 'total_claim_amount', 'bodily_injuries',
-       'policy_csl_500/1000']
+cols=list(feat.nlargest(18).index)
 x_new = x_sm[cols]
 ```
+## Renaming columns to remove gaps 
 
+```{python}
+x_new.columns = x_new.columns.str.replace(' ', '_')
+```
+```{python}
+
+```
 # Modeling, Model Evaluation and Hyperparameter tuning:
 ```{python}
 # importing required libraries
@@ -595,13 +593,12 @@ px.bar(data_frame=models, x='Score', y='Model', color='Score', template='plotly_
 ## Model Interpretation with SHAP and LIME 
 
 ```{python}
-# SHAP interpretation for Random Forest model
-import shap
+# SHAP interpretation for Extra Trees Classifier
 ```
 
 ```{python}
 # Create an explainer object for the Random Forest model
-explainer = shap.TreeExplainer(rand_clf)
+explainer = shap.TreeExplainer(etc)
 ```
 
 ```{python}
@@ -614,32 +611,26 @@ shap_values = explainer.shap_values(x_test)
 shap.summary_plot(shap_values, x_test, plot_type="bar", show=True)
 ```
 
-```{python}
-# Detailed summary plot (beeswarm)
-shap.summary_plot(shap_values, x_test, show=True)
-```
-
-```{python}
-# Example: Force plot for a single prediction (updated for SHAP v0.20+)
-shap.initjs()
-shap.plots.force(explainer.expected_value, shap_values[0], x_test.iloc[0])
-```
 
 # Deployment & Prediction
 
-# 1. Save the trained Random Forest model
+```{python}
+# Save the trained Extra trees model
 import joblib
-joblib.dump(rand_clf, 'random_forest_model.pkl')
+joblib.dump(etc, 'extra_trees_model.pkl')
+```
 
-# 2. Example: Load the model and make a prediction
+```{python}
+# Example: Load the model and make a prediction
 # (In production, this would be in your API or app code)
-model = joblib.load('random_forest_model.pkl')
-sample = x_test.iloc[[0]]  # Example input
+model = joblib.load('extra_trees_model.pkl')
+sample = x_test.iloc[[5]]  # Example input
 prediction = model.predict(sample)
 print(f"Predicted fraud status: {prediction[0]}")
+```
 
-# 3. To deploy as an API, install FastAPI and Uvicorn:
-# !pip install fastapi uvicorn joblib pandas
+## To deploy as an API, install FastAPI and Uvicorn:
+
 
 # 4. Example FastAPI app (save as app.py):
 """
