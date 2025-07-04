@@ -18,7 +18,7 @@ class FraudFeatures(BaseModel):
     policy_csl_250/500: bool
     incident_type_Single Vehicle Collision: bool
     policy_state_OH: bool
-    property_damage_YES  : bool
+    property_damage_YES: bool
     authorities_contacted_Other : bool
     policy_state_IN : bool
     insured_relationship_other-relative: bool
@@ -30,9 +30,14 @@ class FraudFeatures(BaseModel):
 
 
 # Load the pre-trained Extra Trees model
+
 # Ensure the model is in the same directory or provide the correct path
 
 model = joblib.load("extra_trees_model.pkl")
+
+@app.get("/")
+def home():
+return {"health_check": "OK"}
 
 
 @app.post("/predict")
@@ -43,5 +48,7 @@ def predict(features: dict):
 
 
 if __name__ == "__main__":
-    # Start the FastAPI server
+    # Start the FastAPI server  
+    # Use uvicorn to run the app
+    
     uvicorn.run("extra_trees_api:app", host="0.0.0.0", port=8000, reload=True)
