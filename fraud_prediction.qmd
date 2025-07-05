@@ -281,8 +281,8 @@ x_sm, y_sm = smote.fit_resample(x_processed,y)
 oversample_plot = y_sm.value_counts().reset_index()
 oversample_plot.columns = ['Labels', 'fraud_reported']
 print (oversample_plot)
-sns.barplot (x='Labels',y='fraud_reported', data=oversample_plot);
-plt.title('status after upsampling');
+sns.barplot (x='Labels',y='fraud_reported', data=oversample_plot)
+plt.title('Status after upsampling')
 ```
 
 ## Feature selection
@@ -294,22 +294,47 @@ model.fit(x_sm,y_sm)
 ```
 
 ```{python}
-# PLot showing the top 18 features that can be used for model training
-plt.figure(figsize=(10,10))
-feat = pd.Series(model.feature_importances_,index= x_sm.columns)
-feat.nlargest(18).plot(kind='bar')
+# PLot showing the top 20 features that can be used for model training
+plt.figure(figsize=(10, 10))
+feat = pd.Series(model.feature_importances_, index=x_sm.columns)
+feat.nlargest(20).plot(kind="bar")
 ```
 
 ```{python}
-# Selecting only the top 18 columns for modelling
-cols=list(feat.nlargest(18).index)
+# Selecting only the top 9 columns for modelling
+cols = list(feat.nlargest(20).index)
 x_new = x_sm[cols]
 ```
-## Renaming columns to remove gaps 
+## Renaming columns to remove gaps and special characters 
 
 ```{python}
-x_new.columns = x_new.columns.str.replace(' ', '_')
-x_new.columns = x_new.columns.str.replace('/', '_')
+x_new.columns = x_new.columns.str.replace(" ", "_")
+x_new.columns = x_new.columns.str.replace("/", "_")
+```
+
+```{python}
+[
+    "incident_severity_Minor_Damage",
+    "incident_severity_Total_Loss",
+    "collision_type_Rear_Collision",
+    "property_damage_Unsure",
+    "incident_state_SC",
+    "insured_sex_MALE",
+    "authorities_contacted_Other",
+    "policy_csl_250_500",
+    "policy_state_OH",
+    "property_damage_YES",
+    "incident_type_Single_Vehicle_Collision",
+    "insured_relationship_other-relative",
+    "policy_state_IN",
+    "insured_zip",
+    "vehicle_claim",
+    "policy_number",
+    "collision_type_Side_Collision",
+    "total_claim_amount",
+    "incident_hour_of_the_day",
+    "policy_bind_year",
+]
 ```
 
 # Modeling, Model Evaluation and Hyperparameter tuning:
