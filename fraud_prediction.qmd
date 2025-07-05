@@ -309,10 +309,9 @@ x_new = x_sm[cols]
 
 ```{python}
 x_new.columns = x_new.columns.str.replace(' ', '_')
+x_new.columns = x_new.columns.str.replace('/', '_')
 ```
-```{python}
 
-```
 # Modeling, Model Evaluation and Hyperparameter tuning:
 ```{python}
 # importing required libraries
@@ -594,6 +593,7 @@ px.bar(data_frame=models, x='Score', y='Model', color='Score', template='plotly_
 
 ```{python}
 # SHAP interpretation for Extra Trees Classifier
+import shap
 ```
 
 ```{python}
@@ -624,7 +624,7 @@ joblib.dump(etc, 'extra_trees_model.pkl')
 # Example: Load the model and make a prediction
 # (In production, this would be in your API or app code)
 model = joblib.load('extra_trees_model.pkl')
-sample = x_test.iloc[[5]]  # Example input
+sample = x_test.iloc[[20]]  # Example input
 prediction = model.predict(sample)
 print(f"Predicted fraud status: {prediction[0]}")
 ```
@@ -632,27 +632,22 @@ print(f"Predicted fraud status: {prediction[0]}")
 ## To deploy as an API, install FastAPI and Uvicorn:
 
 
-# 4. Example FastAPI app (save as app.py):
-"""
-from fastapi import FastAPI
-import joblib
-import pandas as pd
-
-app = FastAPI()
-model = joblib.load('random_forest_model.pkl')
-
-@app.post("/predict")
-def predict(features: dict):
-    df = pd.DataFrame([features])
-    pred = model.predict(df)
-    return {"fraud_reported": int(pred[0])}
-"""
-
-# 5. Run the API:
+# Run the API:
 # uvicorn app:app --reload
 
 # Dependencies to install:
 # pip install pandas scikit-learn joblib fastapi uvicorn
-```{python}
 
+# Extract the first row of x_test
+
+
+```{python}
+# Convert the first row of x_test to a list
+first_row_list = x_test.iloc[0].tolist()
+print(first_row_list)
+```
+
+
+```{python}
+[False,True,True,False,False,False,True,True,False,False,False,33300,5550,True,3,44400,False,456363]
 ```
