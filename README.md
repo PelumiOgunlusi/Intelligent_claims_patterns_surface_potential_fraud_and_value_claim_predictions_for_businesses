@@ -124,10 +124,43 @@ Trained and evaluated the following models:
 - [Mendeley Data: Insurance Claims Dataset](https://data.mendeley.com/datasets/992mh7dk9y/2)
 
 ---
-
-## Contact
+## For live interactive input and prediction, visit this link:
+[Interactive Input](https://intelligent-claims-patterns-surface-gszs.onrender.com/docs) 
 
 For questions or collaboration, please contact the author via GitHub.
 
+---
+
+## Replicating This Project
+
+To replicate the entire workflow and achieve similar results:
+
+1. **Clone the Repository**
+    ```bash
+    git clone https://github.com/PelumiOgunlusi/Intelligent_claims_patterns_surface_potential_fraud_and_value_claim_predictions_for_businesses
+    cd Intelligent_claims_patterns_surface_potential_fraud_and_value_claim_predictions_for_businesses
+    ```
+
+2. **Download the Dataset**
+    - Visit [Mendeley Data](https://data.mendeley.com/datasets/992mh7dk9y/2) and download `insurance_claims.csv`.
+    - Place the file in the `data/` directory.
+
+3. **Set Up the Environment**
+    - Install dependencies:
+      ```bash
+      pip install -r requirements.txt
+      ```
+      Or use the list provided in the "How to Run" section.
+
+4. **Run the Analysis**
+    - Open and execute `fraud_prediction.qmd` in Quarto or Jupyter Notebook to reproduce all steps: data loading, cleaning, EDA, feature engineering, modeling, and evaluation.
+
+5. **Model Deployment (Optional)**
+    - Follow the deployment instructions to serve the trained model as an API using FastAPI and Uvicorn.
+
+6. **Verify Results**
+    - Compare your model metrics and SHAP visualizations with those reported in this README to ensure consistency.
+
+**Note:** For best reproducibility, use the same Python version and package versions as specified in the repository.
 
 
