@@ -113,7 +113,7 @@ Trained and evaluated the following models:
 
 - `fraud_prediction.qmd` — Main Quarto notebook with code and analysis.
 - `data/insurance_claims.csv` — Dataset (not included here; download from source).
-- `dec_tree_model.pkl` — Example saved model.
+- `extra_trees_model.pkl` — Example saved model.
 - `README.md` — Project summary and instructions.
 
 ---
