@@ -38,6 +38,22 @@ import plotly.express as px
 import itables
 import sklearn
 ```
+
+# For scikit-learn version 1.7.0, you need imbalanced-learn >=0.12.0.
+# To install compatible versions, use:
+# pip install scikit-learn==1.7.0 imbalanced-learn>=0.12.0
+
+# Version compatibility check for scikit-learn and imbalanced-learn
+# Recommended: scikit-learn >=1.0 and imbalanced-learn >=0.9.0
+# Example of compatible versions:
+# scikit-learn==1.2.2
+# imbalanced-learn==0.10.1
+
+import sklearn
+import imblearn
+print("scikit-learn version:", sklearn.__version__)
+print("imbalanced-learn version:", imblearn.__version__)
+
 ## Reading the dataset
 ```{python}
 # Loading the dataset
@@ -246,6 +262,12 @@ cat_col
 cat_col_encoded = pd.get_dummies(cat_col, drop_first=True)
 cat_col_encoded
 ```
+
+```{python}
+# Replace boolean values True/False with 1/0 in the dataset
+cat_col_encoded = cat_col_encoded.replace({True: 1, False: 0})
+cat_col_encoded
+```
 ## Dealing with outliers in numeric dataset
 ```{python}
 # Extracting numerical columns
@@ -272,18 +294,23 @@ y = y.map({'N': 0, 'Y': 1})
 y
 ```
 
-## Balancing the dataset using oversampling SMOTE
+## Balancing the dataset using oversampling RandomOverSampler 
+
 ```{python}
-## imbalance dataset handling and then we can feed our data to the model
-from imblearn.over_sampling import SMOTE
-smote = SMOTE()
-x_sm, y_sm = smote.fit_resample(x_processed,y)
+# Balancing the dataset using RandomOverSampler from imblearn 
+from imblearn.over_sampling import RandomOverSampler
+ros = RandomOverSampler(random_state=42)
+x_sm, y_sm = ros.fit_resample(x_processed, y)
 oversample_plot = y_sm.value_counts().reset_index()
 oversample_plot.columns = ['Labels', 'fraud_reported']
-print (oversample_plot)
-sns.barplot (x='Labels',y='fraud_reported', data=oversample_plot)
-plt.title('Status after upsampling')
 ```
+
+```{python}
+# Plot showing distribution of newly balanced data
+sns.barplot(x="Labels", y="fraud_reported", data=oversample_plot)
+plt.title("Status after upsampling")
+```
+
 
 ## Feature selection
 - Here, we use an embedding method to select the most important features in the entire dataset.  Embedded methods are iterative in the sense that takes care of each iteration of the model training process and carefully extract those features which contribute the most to the training for a particular iteration. [for further information](https://www.analyticsvidhya.com/blog/2020/10/feature-selection-techniques-in-machine-learning/#h-embedded-methods) 
@@ -602,12 +629,12 @@ px.bar(data_frame=models, x='Score', y='Model', color='Score', template='plotly_
 # Model Interpretation:
 ## Model Interpretation with SHAP 
 ```{python}
-# SHAP interpretation for Extra Trees Classifier
+# SHAP interpretation for Decision tree Classifier model
 import shap
 ```
 
 ```{python}
-# Create an explainer object for the Random Forest model
+# Create an explainer object for the Extra tree Classifier model
 explainer = shap.TreeExplainer(etc)
 ```
 
@@ -639,21 +666,21 @@ prediction = model.predict(sample)
 print(f"Predicted fraud status: {prediction[0]}")
 ```
 
+```{python}
+model.predict(x_test.iloc[[20]])
+```
 
 ```{python}
 # Another Example: Loading the model with the data in numpy array format
-model.predict([[True,False,False,True,True,True,False,False,False,False,False,True,False,1,447274,76010,457188,False,False,55280]])
+model.predict([[1,0,0,1,1,1,0,0,0,0,0,1,0,1,447274,76010,457188,0,0,55280]])
 ```
 - This shows the model taking in the values in numpy array form and making a prediction. This is done to validate the replication of this model in a production pipeline as this is the exact form in which the data would be fed into the model in production
 
 ## To deploy as an API, install FastAPI and Uvicorn:
 
 # Run the API:
-# uvicorn app:app --reload
+# uvicorn extra_trees_api:app --reload
 
 # Dependencies to install:
 # pip install pandas scikit-learn joblib fastapi uvicorn
-
-# Extract the first row of x_test
-
 

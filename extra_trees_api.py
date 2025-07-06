@@ -39,11 +39,13 @@ def predict_fraud(data: FraudFeatures):
     incident_severity_Total_Loss = data["incident_severity_Total_Loss"]
     policy_csl_250_500 = data["policy_csl_250_500"]
     collision_type_Rear_Collision = data["collision_type_Rear_Collision"]
-    insured_sex_MALE = data["insureinsured_sex_MALE"]
+    insured_sex_MALE = data["insured_sex_MALE"]
     authorities_contacted_Other = data["authorities_contacted_Other"]
     incident_state_SC = data["incident_state_SC"]
     policy_state_IN = data["policy_state_IN"]
-    incident_type_Single_Vehicle_Collision = data["incident_type_Single_Vehicle_Collision"]   
+    incident_type_Single_Vehicle_Collision = data[
+        "incident_type_Single_Vehicle_Collision"
+    ]
     insured_relationship_other_relative = data["insured_relationship_other_relative"]
     property_damage_YES = data["property_damage_YES"]
     policy_state_OH = data["policy_state_OH"]
@@ -76,7 +78,7 @@ def predict_fraud(data: FraudFeatures):
                 policy_number,
                 police_report_available_NO,
                 policy_csl_500_1000,
-                vehicle_claim
+                vehicle_claim,
             ]
         ]
     )

@@ -1,6 +1,14 @@
-pandas 
-seaborn 
-scikit-learn 
-plotly 
-streamlit 
-joblib
+# This is a requirements.txt file for the Intelligent Claims Patterns project.
+# It lists the necessary Python packages with their specific versions to ensure compatibility and reproducibility.  
+pandas==2.2.2
+numpy==1.26.4
+seaborn==0.13.2
+matplotlib==3.8.4
+plotly==5.21.0
+itables==1.7.0
+scikit-learn==1.4.2
+imbalanced-learn==0.12.2
+joblib==1.4.2
+shap==0.45.1
+fastapi==0.111.0
+uvicorn==0.29.0
