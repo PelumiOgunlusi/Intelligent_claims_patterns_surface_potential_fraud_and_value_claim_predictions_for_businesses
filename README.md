@@ -97,7 +97,16 @@ Trained and evaluated the following models:
       ```
       uvicorn app:app --reload
       ```
+4. **Access the API:**
+    - Open your browser and navigate to `https://intelligent-claims-patterns-surface-gszs.onrender.com/docs` to interact with the API.
 
+5. Note: When running the API, ensure you put in the FraudFeatures variables 
+  in the correct format as shown in the `fraud_cases.py` file. Majority of the features in this class are boolean features, taking only two values: 0 for No and 1 for Yes. The only features that take integer values (other than 0 or 1) are:
+- bodily_injuries
+- insured_zip
+- total_claim_amount
+- policy_number
+- vehicle_claim
 ---
 
 ## Key Insights
