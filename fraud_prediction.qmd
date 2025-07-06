@@ -301,41 +301,27 @@ feat.nlargest(20).plot(kind="bar")
 ```
 
 ```{python}
-# Selecting only the top 9 columns for modelling
-cols = list(feat.nlargest(20).index)
+# Selecting only the top 20 features for modelling
+cols = ['incident_severity_Minor Damage', 'property_damage_Unsure',
+       'incident_severity_Total Loss', 'policy_csl_250/500',
+       'collision_type_Rear Collision', 'insured_sex_MALE',
+       'authorities_contacted_Other', 'incident_state_SC', 'policy_state_IN',
+       'incident_type_Single Vehicle Collision',
+       'insured_relationship_other-relative', 'property_damage_YES',
+       'policy_state_OH', 'bodily_injuries', 'insured_zip',
+       'total_claim_amount', 'policy_number', 'police_report_available_NO',
+       'policy_csl_500/1000', 'vehicle_claim']
 x_new = x_sm[cols]
 ```
 ## Renaming columns to remove gaps and special characters 
 
 ```{python}
+# Cleaning out column headers for easy deployment
 x_new.columns = x_new.columns.str.replace(" ", "_")
 x_new.columns = x_new.columns.str.replace("/", "_")
+x_new.columns = x_new.columns.str.replace("-", "_")
 ```
 
-```{python}
-[
-    "incident_severity_Minor_Damage",
-    "incident_severity_Total_Loss",
-    "collision_type_Rear_Collision",
-    "property_damage_Unsure",
-    "incident_state_SC",
-    "insured_sex_MALE",
-    "authorities_contacted_Other",
-    "policy_csl_250_500",
-    "policy_state_OH",
-    "property_damage_YES",
-    "incident_type_Single_Vehicle_Collision",
-    "insured_relationship_other-relative",
-    "policy_state_IN",
-    "insured_zip",
-    "vehicle_claim",
-    "policy_number",
-    "collision_type_Side_Collision",
-    "total_claim_amount",
-    "incident_hour_of_the_day",
-    "policy_bind_year",
-]
-```
 
 # Modeling, Model Evaluation and Hyperparameter tuning:
 ```{python}
@@ -614,8 +600,7 @@ px.bar(data_frame=models, x='Score', y='Model', color='Score', template='plotly_
        title='Models comparison')
 ```
 # Model Interpretation:
-## Model Interpretation with SHAP and LIME 
-
+## Model Interpretation with SHAP 
 ```{python}
 # SHAP interpretation for Extra Trees Classifier
 import shap
@@ -654,8 +639,14 @@ prediction = model.predict(sample)
 print(f"Predicted fraud status: {prediction[0]}")
 ```
 
-## To deploy as an API, install FastAPI and Uvicorn:
 
+```{python}
+# Another Example: Loading the model with the data in numpy array format
+model.predict([[True,False,False,True,True,True,False,False,False,False,False,True,False,1,447274,76010,457188,False,False,55280]])
+```
+- This shows the model taking in the values in numpy array form and making a prediction. This is done to validate the replication of this model in a production pipeline as this is the exact form in which the data would be fed into the model in production
+
+## To deploy as an API, install FastAPI and Uvicorn:
 
 # Run the API:
 # uvicorn app:app --reload
@@ -666,13 +657,3 @@ print(f"Predicted fraud status: {prediction[0]}")
 # Extract the first row of x_test
 
 
-```{python}
-# Convert the first row of x_test to a list
-first_row_list = x_test.iloc[0].tolist()
-print(first_row_list)
-```
-
-
-```{python}
-[False,True,True,False,False,False,True,True,False,False,False,33300,5550,True,3,44400,False,456363]
-```
