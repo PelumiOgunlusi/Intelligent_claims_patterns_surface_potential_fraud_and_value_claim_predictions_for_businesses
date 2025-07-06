@@ -94,4 +94,4 @@ def predict_fraud(data: FraudFeatures):
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
 
-# uvicorn extra_trees_api:app --reload (To run the API server from the command line/terminal)
+# uvicorn main:app --reload (To run the API server from the command line/terminal)
